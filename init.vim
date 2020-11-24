@@ -1,226 +1,257 @@
-call plug#begin('~/.config/nvim/plugged')
+" Specify a directory for plugins
+call plug#begin('~/.vim/plugged')
 
-" Plugins {
-    " ctrl-p is a fuzzy file finder.
-    Plug 'kien/ctrlp.vim'
-    " lightline is a status line for nvim.
-    Plug 'itchyny/lightline.vim'
-    " gruvbox colorscheme. Seems to work the best for me.
-    Plug 'morhetz/gruvbox'
-    " neomake is a code linting tool that runs in the background.
-    Plug 'neomake/neomake'
-" }
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'tsony-tsonev/nerdtree-git-plugin'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'ryanoasis/vim-devicons'
+Plug 'airblade/vim-gitgutter'
+Plug 'scrooloose/nerdcommenter'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
+Plug 'scrooloose/nerdtree'
+Plug 'jlanzarotta/bufexplorer'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-ragtag'
+Plug 'cfcosta/html5-vim-minimal'
+Plug 'tpope/vim-vividchalk'
+Plug 'Raimondi/delimitMate'
+Plug 'kana/vim-textobj-user'
+Plug 'nelstrom/vim-textobj-rubyblock'
+Plug 'mileszs/ack.vim'
+Plug 'ecomba/vim-ruby-refactoring'
+Plug 'godlygeek/tabular'
+Plug 'vim-ruby/vim-ruby'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-repeat'
+Plug 'kchmck/vim-coffee-script'
+Plug 'rafaelfranca/rtf_pygmentize'
+Plug 'altercation/vim-colors-solarized'
+Plug 'tpope/vim-unimpaired'
+Plug 'mattn/emmet-vim'
+Plug 'bling/vim-airline'
+Plug 'junegunn/fzf', { 'do': './install --bin' }
+Plug 'junegunn/fzf.vim'
+Plug 'szw/vim-tags'
+Plug 'tpope/vim-dispatch'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'neomake/neomake'
+Plug 'SirVer/ultisnips'
+Plug 'rafaelfranca/vim-snippets'
+Plug 'tpope/vim-rhubarb'
+Plug 'akitaonrails/snipmate.vim'
+Plug 'mattn/gist-vim'
+Plug 'mattn/webapi-vim'
+Plug 'scrooloose/syntastic'
+Plug 'slim-template/vim-slim'
+Plug 'digitaltoad/vim-pug'
+Plug 'dense-analysis/ale'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'morhetz/gruvbox'
+Plug 'HerringtonDarkholme/yats.vim' " TS Syntax
 
+" Initialize plugin system
 call plug#end()
 
-" Map the leader key to ,
-let mapleader="\<SPACE>"
+inoremap jk <ESC>
+nmap <C-n> :NERDTreeToggle<CR>
+vmap ++ <plug>NERDCommenterToggle
+nmap ++ <plug>NERDCommenterToggle
 
-" General {
-    set noautoindent        " I indent my code myself.
-    set nocindent           " I indent my code myself.
-    "set smartindent        " Or I let the smartindent take care of it.
-    set breakindent         " Indent line-breaks at the same level as code.
+" open NERDTree automatically
+"autocmd StdinReadPre * let s:std_in=1
+"autocmd VimEnter * NERDTree
 
-    set ttimeoutlen=100
-" }
-
-" Search {
-    set ignorecase          " Make searching case insensitive
-    set smartcase           " ... unless the query has capital letters.
-    set gdefault            " Use 'g' flag by default with :s/foo/bar/.
-
-    " Use <C-L> to clear the highlighting of :set hlsearch.
-    if maparg('<C-L>', 'n') ==# ''
-        nnoremap <silent> <C-L> :nohlsearch<CR><C-L>
-    endif
-" }
-
-" Formatting {
-    set showmatch           " Show matching brackets.
-    set number              " Show the line numbers on the left side.
-    set formatoptions+=o    " Continue comment marker in new lines.
-    set expandtab           " Insert spaces when TAB is pressed.
-    set tabstop=4           " Render TABs using this many spaces.
-    set shiftwidth=4        " Indentation amount for < and > commands.
-
-    set nojoinspaces        " Prevents inserting two spaces after punctuation on a join (J)
-
-    " More natural splits
-    set splitbelow          " Horizontal split below current.
-    set splitright          " Vertical split to right of current.
-
-    if !&scrolloff
-        set scrolloff=3       " Show next 3 lines while scrolling.
-    endif
-    if !&sidescrolloff
-        set sidescrolloff=5   " Show next 5 columns while side-scrolling.
-    endif
-    set nostartofline       " Do not jump to first character with page commands.
-
-    " Tell Vim which characters to show for expanded TABs,
-    " trailing whitespace, and end-of-lines. VERY useful!
-    if &listchars ==# 'eol:$'
-        set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
-    endif
-    set list                " Show problematic characters.
-" }
-
-" Configuration {
-    set autochdir           " Switch to current file's parent directory.
-
-    " Remove special characters for filename
-    set isfname-=:
-    set isfname-==
-    set isfname-=+
-
-    " Map ; to :
-    nnoremap ; :
-
-    " Path/file expansion in colon-mode.
-    set wildmode=list:longest
-
-    " Allow color schemes to do bright colors without forcing bold.
-    if &t_Co == 8 && $TERM !~# '^linux'
-        set t_Co=16
-    endif
-
-    " Remove trailing spaces.
-    function! TrimWhitespace()
-        let l:save = winsaveview()
-        %s/\s\+$//e
-        call winrestview(l:save)
-    endfunction
-    " FIXME: Do not call this on makefile and sv files.
-    autocmd BufWritePre * call TrimWhitespace()
-    nnoremap <leader>W :call TrimWhitespace()<CR>
-
-    " Diff options
-    set diffopt+=iwhite
-
-    "Enter to go to EOF and backspace to go to start
-    nnoremap <CR> G
-    nnoremap <BS> gg
-    " Stop cursor from jumping over wrapped lines
-    nnoremap j gj
-    nnoremap k gk
-    " Make HOME and END behave like shell
-    inoremap <C-E> <End>
-    inoremap <C-A> <Home>
-" }
-
-" UI Options {
-    " Colorscheme options.
-    set bg=dark
-    colorscheme gruvbox
-
-    " Also highlight all tabs and trailing whitespace characters.
-    highlight ExtraWhitespace ctermbg=darkgreen guibg=darkgreen
-    match ExtraWhitespace /\s\+$\|\t/
-
-    " Relative numbering
-    function! NumberToggle()
-        if(&relativenumber == 1)
-            set nornu
-            set number
-        else
-            set rnu
-        endif
-    endfunc
-
-    " Toggle between normal and relative numbering.
-    nnoremap <leader>r :call NumberToggle()<cr>
-" }
-
-" Keybindings {
-    " Save file
-    nnoremap <Leader>w :w<CR>
-
-    " Copy and paste from system clipboard (Might require xsel/xclip install)
-    vmap <Leader>y "+y
-    vmap <Leader>d "+d
-    nmap <Leader>p "+p
-    nmap <Leader>P "+P
-    vmap <Leader>p "+p
-    vmap <Leader>P "+P
-
-    " Move between buffers
-    nmap <Leader>l :bnext<CR>
-    nmap <Leader>h :bprevious<CR>
-    nmap <Leader>k :tabnext<CR>
-    nmap <Leader>j :tabprevious<CR>
-    nmap <tab> <C-w>w
-
-    " Manage split sizes
-    map <leader>ww <C-w>_
-    map <leader>w\ <C-w>|
-    map <leader>we <C-w>=
-    map <leader>w- <C-w>-
-    map <leader>w= <C-w>+
-
-" }
+let g:NERDTreeGitStatusWithFlags = 1
+"let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+"let g:NERDTreeGitStatusNodeColorization = 1
+"let g:NERDTreeColorMapCustom = {
+    "\ "Staged"    : "#0ee375",  
+    "\ "Modified"  : "#d9bf91",  
+    "\ "Renamed"   : "#51C9FC",  
+    "\ "Untracked" : "#FCE77C",  
+    "\ "Unmerged"  : "#FC51E6",  
+    "\ "Dirty"     : "#FFBD61",  
+    "\ "Clean"     : "#87939A",   
+    "\ "Ignored"   : "#808080"   
+    "\ }                         
 
 
-" Experimental {
-    " Search and Replace
-    nmap <Leader>s :%s//g<Left><Left>
-" }
+let g:NERDTreeIgnore = ['^node_modules$']
 
-" Plugin Settings {
-    " neomake {
-        let g:neomake_warning_sign={'text': '◆'}
-        let g:neomake_error_sign={'text': '✗'}
-        autocmd! BufWritePost * Neomake
-        nnoremap <Leader>n :lopen<CR>
-    " }
-    " Lightline {
-        let g:lightline = {
-        \ 'colorscheme': 'gruvbox',
-        \ 'active': {
-        \   'left': [['mode', 'paste'], ['filename', 'modified']],
-        \   'right': [['lineinfo'], ['percent'], ['readonly', 'linter_warnings', 'linter_errors']]
-        \ },
-        \ 'component_expand': {
-        \   'linter_warnings': 'LightlineLinterWarnings',
-        \   'linter_errors': 'LightlineLinterErrors'
-        \ },
-        \ 'component_type': {
-        \   'readonly': 'error',
-        \   'linter_warnings': 'warning',
-        \   'linter_errors': 'error'
-        \ },
-        \ }
-        function! LightlineLinterWarnings() abort
-            let l:counts = neomake#statusline#LoclistCounts()
-            let l:warnings = get(l:counts, 'W', 0)
-            return l:warnings == 0 ? '' : printf('%d ◆', l:warnings)
-        endfunction
+" vim-prettier
+"let g:prettier#quickfix_enabled = 0
+"let g:prettier#quickfix_auto_focus = 0
+" prettier command for coc
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
+" run prettier on save
+"let g:prettier#autoformat = 0
+"autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue,*.yaml,*.html PrettierAsync
 
-        function! LightlineLinterErrors() abort
-            let l:counts = neomake#statusline#LoclistCounts()
-            let l:errors = get(l:counts, 'E', 0)
-            return l:errors == 0 ? '' : printf('%d ✗', l:errors)
-        endfunction
 
-        " Ensure lightline updates after neomake is done.
-        autocmd! User NeomakeFinished call lightline#update()
-    " }
-    " CtrlP {
-        " Open file menu
-        nnoremap <Leader>o :CtrlP<CR>
-        " Open buffer menu
-        nnoremap <Leader>b :CtrlPBuffer<CR>
-        " Open most recently used files
-        nnoremap <Leader>f :CtrlPMRUFiles<CR>
-    " }
-    " netrw {
-        let g:netrw_liststyle=3 " tree (change to 0 for thin)
-        let g:netrw_banner=0    " no banner
-        let g:netrw_altv=1      " open files on right
-        let g:netrw_winsize=80  " only use 20% screen for netrw
-        " FIXME: Preview opens to left and is very narrow
-        let g:netrw_preview=1   " open previews vertically
-    " }
-" }
+" ctrlp
+let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
 
-" vim:set ft=vim sw=4 ts=4:
+" j/k will move virtual lines (lines that wrap)
+noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
+noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
+
+set relativenumber
+
+set smarttab
+set cindent
+set tabstop=2
+set shiftwidth=2
+" always uses spaces instead of tab characters
+set expandtab
+
+colorscheme gruvbox
+
+" sync open file with NERDTree
+" " Check if NERDTree is open or active
+function! IsNERDTreeOpen()        
+  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
+endfunction
+
+" Call NERDTreeFind iff NERDTree is active, current window contains a modifiable
+" file, and we're not in vimdiff
+function! SyncTree()
+  if &modifiable && IsNERDTreeOpen() && strlen(expand('%')) > 0 && !&diff
+    NERDTreeFind
+    wincmd p
+  endif
+endfunction
+
+" Highlight currently open buffer in NERDTree
+autocmd BufEnter * call SyncTree()
+
+" coc config
+let g:coc_global_extensions = [
+  \ 'coc-snippets',
+  \ 'coc-pairs',
+  \ 'coc-tsserver',
+  \ 'coc-eslint', 
+  \ 'coc-prettier', 
+  \ 'coc-json', 
+  \ ]
+" from readme
+" if hidden is not set, TextEdit might fail.
+set hidden " Some servers have issues with backup files, see #649 set nobackup set nowritebackup " Better display for messages set cmdheight=2 " You will have bad experience for diagnostic messages when it's default 4000.
+set updatetime=300
+
+" don't give |ins-completion-menu| messages.
+set shortmess+=c
+
+" always show signcolumns
+set signcolumn=yes
+
+" Use tab for trigger completion with characters ahead and navigate.
+" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
+
+" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
+" Coc only does snippet and additional edit on confirm.
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+" Or use `complete_info` if your vim support it, like:
+" inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+
+" Use `[g` and `]g` to navigate diagnostics
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use K to show documentation in preview window
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
+
+" Highlight symbol under cursor on CursorHold
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Remap for rename current word
+nmap <F2> <Plug>(coc-rename)
+
+" Remap for format selected region
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap for do codeAction of current line
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Fix autofix problem of current line
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Create mappings for function text object, requires document symbols feature of languageserver.
+xmap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap if <Plug>(coc-funcobj-i)
+omap af <Plug>(coc-funcobj-a)
+
+" Use <C-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
+nmap <silent> <C-d> <Plug>(coc-range-select)
+xmap <silent> <C-d> <Plug>(coc-range-select)
+
+" Use `:Format` to format current buffer
+command! -nargs=0 Format :call CocAction('format')
+
+" Use `:Fold` to fold current buffer
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" use `:OR` for organize import of current buffer
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+" Add status line support, for integration with other plugin, checkout `:h coc-status`
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Using CocList
+" Show all diagnostics
+nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions
+nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
+" Show commands
+nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document
+nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols
+nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list
+nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
